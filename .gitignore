@@ -50,3 +50,10 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# 배포
+*.pem
+*.ppk
+*.key
+*.backup
+blogs.db.backup.*
