@@ -202,7 +202,7 @@
                     li.innerHTML = `
                         <h3>${blog.title}</h3>
                         <p>${blog.content.substring(0, 100)}${blog.content.length > 100 ? '...' : ''}</p>
-                        <p><small>작성자: ${blog.author_email} | 작성일: ${blog.created_at}</small></p>
+                        <p><small>작성일: ${blog.created_at}</small></p>
                     `;
                     blogList.appendChild(li);
                 });

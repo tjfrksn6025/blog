@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CORS 테스트</h1>
+    <p>아래 버튼을 클릭하여 API 서버와 통신합니다.</p>
+    <button onclick="testAPI()">API 호출하기</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = '로딩 중...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/hello');
+                const data = await response.json();
+                resultDiv.textContent = '응답: ' + data.message;
+            } catch (error) {
+                resultDiv.textContent = '오류: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

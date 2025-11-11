@@ -138,14 +138,6 @@
                 }
                 const blog = await response.json();
 
-                // 작성자 확인 (현재 로그인한 사용자와 비교)
-                const userEmail = localStorage.getItem('user_email');
-                if (blog.author_email !== userEmail) {
-                    alert('본인이 작성한 글만 수정할 수 있습니다.');
-                    location.href = `blog_detail.html?id=${blogId}`;
-                    return;
-                }
-
                 document.getElementById('title').value = blog.title;
                 document.getElementById('content').value = blog.content;
             } catch (error) {

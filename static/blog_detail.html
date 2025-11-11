@@ -141,19 +141,16 @@
                     <h2>${blog.title}</h2>
                     <div class="content">${blog.content}</div>
                     <div class="meta">
-                        작성자: ${blog.author_email}<br>
                         작성일: ${blog.created_at}<br>
                         수정일: ${blog.updated_at}
                     </div>
                 `;
 
-                // 작성자 확인 및 버튼 표시
-                const userEmail = localStorage.getItem('user_email');
+                const token = localStorage.getItem('access_token');
                 const editBtn = document.getElementById('edit-btn');
                 const deleteBtn = document.getElementById('delete-btn');
 
-                if (userEmail && blog.author_email === userEmail) {
-                    // 현재 로그인한 사용자가 작성자인 경우 수정/삭제 버튼 표시
+                if (token) {
                     editBtn.style.display = 'inline-block';
                     deleteBtn.style.display = 'inline-block';
                 }
