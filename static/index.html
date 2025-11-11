@@ -36,7 +36,7 @@
             resultDiv.textContent = '로딩 중...';
 
             try {
-                const response = await fetch('http://localhost:8000/api/hello');
+                const response = await fetch('/api/hello');
                 const data = await response.json();
                 resultDiv.textContent = '응답: ' + data.message;
             } catch (error) {
