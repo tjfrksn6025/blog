@@ -69,7 +69,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
 
-class UserResponse(BaseModel):
+class User(BaseModel):
     id: int
     email: str
     created_at: str
@@ -97,18 +97,6 @@ class Blog(BaseModel):
     title: str
     content: str
     author_id: int
-    created_at: str
-    updated_at: str
-
-    class Config:
-        from_attributes = True
-
-class BlogWithAuthor(BaseModel):
-    id: int
-    title: str
-    content: str
-    author_id: int
-    author_email: str
     created_at: str
     updated_at: str
 
@@ -212,15 +200,11 @@ init_db()
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/")
-async def root():
-    return {"message": "Blog API 서버가 정상적으로 실행 중입니다."}
-
 @app.get("/api/hello")
 async def hello():
     return {"message": "안녕하세요! FastAPI 블로그입니다."}
 
-@app.post("/register", response_model=UserResponse)
+@app.post("/register", response_model=User)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(UserModel).filter(UserModel.email == user_data.email).first()
     if db_user:
@@ -255,43 +239,17 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/users/me", response_model=UserResponse)
-async def read_users_me(current_user: UserModel = Depends(get_current_user)):
-    return current_user
-
-@app.get("/blogs", response_model=list[BlogWithAuthor])
+@app.get("/blogs", response_model=list[Blog])
 def read_blogs(db: Session = Depends(get_db)):
     blogs = db.query(BlogModel).order_by(BlogModel.id.desc()).all()
+    return blogs
 
-    result = []
-    for blog in blogs:
-        result.append(BlogWithAuthor(
-            id=blog.id,
-            title=blog.title,
-            content=blog.content,
-            author_id=blog.author_id,
-            author_email=blog.author.email,
-            created_at=blog.created_at,
-            updated_at=blog.updated_at
-        ))
-
-    return result
-
-@app.get("/blogs/{blog_id}", response_model=BlogWithAuthor)
+@app.get("/blogs/{blog_id}", response_model=Blog)
 def read_blog(blog_id: int, db: Session = Depends(get_db)):
     blog = db.query(BlogModel).filter(BlogModel.id == blog_id).first()
     if not blog:
         raise HTTPException(status_code=404, detail="블로그 글을 찾을 수 없습니다.")
-
-    return BlogWithAuthor(
-        id=blog.id,
-        title=blog.title,
-        content=blog.content,
-        author_id=blog.author_id,
-        author_email=blog.author.email,
-        created_at=blog.created_at,
-        updated_at=blog.updated_at
-    )
+    return blog
 
 @app.post("/blogs", response_model=Blog)
 def create_blog(
