@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블로그 목록</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .actions {
+            margin-bottom: 20px;
+        }
+
+        .blog-list {
+            list-style: none;
+        }
+
+        .blog-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .blog-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .blog-item h3 {
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .blog-item p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>블로그 목록</h1>
+
+        <div class="header-actions">
+            <div class="actions">
+                <button id="create-btn" class="btn-success" onclick="location.href='blog_create.html'" style="display: none;">새 글 작성</button>
+            </div>
+            <div class="auth-buttons">
+                <span id="user-info" class="user-info" style="display: none;"></span>
+                <button id="login-btn" class="btn-primary" onclick="location.href='login.html'" style="display: none;">로그인</button>
+                <button id="register-btn" class="btn-primary" onclick="location.href='register.html'" style="display: none;">회원가입</button>
+                <button id="logout-btn" class="btn-danger" onclick="logout()" style="display: none;">로그아웃</button>
+            </div>
+        </div>
+
+        <ul id="blog-list" class="blog-list">
+            <!-- 블로그 목록이 여기에 표시됩니다 -->
+        </ul>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+
+        // 로그인 상태 확인 및 UI 업데이트
+        function updateAuthUI() {
+            const token = localStorage.getItem('access_token');
+            const userEmail = localStorage.getItem('user_email');
+
+            const createBtn = document.getElementById('create-btn');
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const userInfo = document.getElementById('user-info');
+
+            if (token) {
+                // 로그인된 상태
+                createBtn.style.display = 'inline-block';
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                userInfo.style.display = 'inline-block';
+                userInfo.textContent = `${userEmail}님`;
+            } else {
+                // 로그인되지 않은 상태
+                createBtn.style.display = 'none';
+                loginBtn.style.display = 'inline-block';
+                registerBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                userInfo.style.display = 'none';
+            }
+        }
+
+        // 로그아웃 함수
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user_email');
+                alert('로그아웃 되었습니다.');
+                updateAuthUI();
+            }
+        }
+
+        // 블로그 목록 로드
+        async function loadBlogs() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/blogs`);
+                const blogs = await response.json();
+
+                const blogList = document.getElementById('blog-list');
+                blogList.innerHTML = '';
+
+                if (blogs.length === 0) {
+                    blogList.innerHTML = '<p style="text-align: center; color: #999;">아직 작성된 블로그가 없습니다.</p>';
+                    return;
+                }
+
+                blogs.forEach(blog => {
+                    const li = document.createElement('li');
+                    li.className = 'blog-item';
+                    li.onclick = () => location.href = `blog_detail.html?id=${blog.id}`;
+                    li.innerHTML = `
+                        <h3>${blog.title}</h3>
+                        <p>${blog.content.substring(0, 100)}${blog.content.length > 100 ? '...' : ''}</p>
+                        <p><small>작성자: ${blog.author_email} | 작성일: ${blog.created_at}</small></p>
+                    `;
+                    blogList.appendChild(li);
+                });
+            } catch (error) {
+                alert('블로그 목록을 불러오는데 실패했습니다.');
+                console.error(error);
+            }
+        }
+
+        // 초기 로드
+        window.onload = () => {
+            updateAuthUI();
+            loadBlogs();
+        };
+    </script>
+</body>
+</html>

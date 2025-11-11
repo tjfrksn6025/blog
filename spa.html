@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블로그 - SPA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #444;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .blog-list {
+            list-style: none;
+        }
+
+        .blog-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .blog-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .blog-item h3 {
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .blog-item p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .blog-detail {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+
+        .blog-detail h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .blog-detail .content {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .blog-detail .meta {
+            color: #666;
+            font-size: 14px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        form {
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FastAPI 블로그 (SPA)</h1>
+
+        <div id="message" class="message hidden"></div>
+
+        <!-- 블로그 목록 섹션 -->
+        <div id="list-section" class="section">
+            <h2>블로그 목록</h2>
+            <button class="btn-success" onclick="showCreateForm()">새 글 작성</button>
+            <ul id="blog-list" class="blog-list">
+                <!-- 블로그 목록이 여기에 표시됩니다 -->
+            </ul>
+        </div>
+
+        <!-- 블로그 상세 섹션 -->
+        <div id="detail-section" class="section hidden">
+            <h2>블로그 상세</h2>
+            <div id="blog-detail" class="blog-detail">
+                <!-- 블로그 상세 내용이 여기에 표시됩니다 -->
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn-secondary" onclick="showList()">목록으로</button>
+                <button class="btn-primary" onclick="showEditForm()">수정</button>
+                <button class="btn-danger" onclick="deleteBlog()">삭제</button>
+            </div>
+        </div>
+
+        <!-- 블로그 생성 섹션 -->
+        <div id="create-section" class="section hidden">
+            <h2>새 글 작성</h2>
+            <form onsubmit="createBlog(event)">
+                <div class="form-group">
+                    <label for="create-title">제목</label>
+                    <input type="text" id="create-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="create-content">내용</label>
+                    <textarea id="create-content" required></textarea>
+                </div>
+                <button type="submit" class="btn-success">작성</button>
+                <button type="button" class="btn-secondary" onclick="showList()">취소</button>
+            </form>
+        </div>
+
+        <!-- 블로그 수정 섹션 -->
+        <div id="edit-section" class="section hidden">
+            <h2>글 수정</h2>
+            <form onsubmit="updateBlog(event)">
+                <div class="form-group">
+                    <label for="edit-title">제목</label>
+                    <input type="text" id="edit-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-content">내용</label>
+                    <textarea id="edit-content" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">수정</button>
+                <button type="button" class="btn-secondary" onclick="showDetail()">취소</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        let currentBlogId = null;
+
+        // 메시지 표시 함수
+        function showMessage(text, type = 'success') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.classList.remove('hidden');
+            setTimeout(() => {
+                messageEl.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 섹션 표시/숨김 함수
+        function showSection(sectionId) {
+            const sections = ['list-section', 'detail-section', 'create-section', 'edit-section'];
+            sections.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        // 블로그 목록 로드
+        async function loadBlogs() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/blogs`);
+                const blogs = await response.json();
+
+                const blogList = document.getElementById('blog-list');
+                blogList.innerHTML = '';
+
+                blogs.forEach(blog => {
+                    const li = document.createElement('li');
+                    li.className = 'blog-item';
+                    li.onclick = () => loadBlogDetail(blog.id);
+                    li.innerHTML = `
+                        <h3>${blog.title}</h3>
+                        <p>${blog.content.substring(0, 100)}${blog.content.length > 100 ? '...' : ''}</p>
+                        <p><small>작성자: ${blog.author} | 작성일: ${blog.created_at}</small></p>
+                    `;
+                    blogList.appendChild(li);
+                });
+            } catch (error) {
+                showMessage('블로그 목록을 불러오는데 실패했습니다.', 'error');
+                console.error(error);
+            }
+        }
+
+        // 블로그 상세 로드
+        async function loadBlogDetail(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/blogs/${id}`);
+                const blog = await response.json();
+
+                currentBlogId = blog.id;
+
+                const blogDetail = document.getElementById('blog-detail');
+                blogDetail.innerHTML = `
+                    <h3>${blog.title}</h3>
+                    <div class="content">${blog.content}</div>
+                    <div class="meta">
+                        작성자: ${blog.author}<br>
+                        작성일: ${blog.created_at}<br>
+                        수정일: ${blog.updated_at}
+                    </div>
+                `;
+
+                showSection('detail-section');
+            } catch (error) {
+                showMessage('블로그 상세 정보를 불러오는데 실패했습니다.', 'error');
+                console.error(error);
+            }
+        }
+
+        // 블로그 생성
+        async function createBlog(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('create-title').value;
+            const content = document.getElementById('create-content').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/blogs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title, content }),
+                });
+
+                const blog = await response.json();
+                showMessage('블로그 글이 작성되었습니다.');
+                document.getElementById('create-title').value = '';
+                document.getElementById('create-content').value = '';
+                showList();
+            } catch (error) {
+                showMessage('블로그 글 작성에 실패했습니다.', 'error');
+                console.error(error);
+            }
+        }
+
+        // 블로그 수정
+        async function updateBlog(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('edit-title').value;
+            const content = document.getElementById('edit-content').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/blogs/${currentBlogId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title, content }),
+                });
+
+                const blog = await response.json();
+                showMessage('블로그 글이 수정되었습니다.');
+                loadBlogDetail(currentBlogId);
+            } catch (error) {
+                showMessage('블로그 글 수정에 실패했습니다.', 'error');
+                console.error(error);
+            }
+        }
+
+        // 블로그 삭제
+        async function deleteBlog() {
+            if (!confirm('정말 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/blogs/${currentBlogId}`, {
+                    method: 'DELETE',
+                });
+
+                const result = await response.json();
+                showMessage('블로그 글이 삭제되었습니다.');
+                showList();
+            } catch (error) {
+                showMessage('블로그 글 삭제에 실패했습니다.', 'error');
+                console.error(error);
+            }
+        }
+
+        // 목록 보기
+        function showList() {
+            showSection('list-section');
+            loadBlogs();
+        }
+
+        // 상세 보기
+        function showDetail() {
+            showSection('detail-section');
+        }
+
+        // 생성 폼 보기
+        function showCreateForm() {
+            showSection('create-section');
+            document.getElementById('create-title').value = '';
+            document.getElementById('create-content').value = '';
+        }
+
+        // 수정 폼 보기
+        async function showEditForm() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/blogs/${currentBlogId}`);
+                const blog = await response.json();
+
+                document.getElementById('edit-title').value = blog.title;
+                document.getElementById('edit-content').value = blog.content;
+
+                showSection('edit-section');
+            } catch (error) {
+                showMessage('블로그 정보를 불러오는데 실패했습니다.', 'error');
+                console.error(error);
+            }
+        }
+
+        // 초기 로드
+        window.onload = () => {
+            loadBlogs();
+        };
+    </script>
+</body>
+</html>
