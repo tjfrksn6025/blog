@@ -147,7 +147,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if token_data is None or token_data.email is None:
         raise credentials_exception
 
-    user = db.query(UserModel).filter(UserModel.email == token_data.email).first()
+    user = db.query(UserModel).filter(UserModel.id == int(token_data.email)).first()
     if user is None:
         raise credentials_exception
 
@@ -175,15 +175,15 @@ def init_db():
                     updated_at="2025-01-06",
                 ),
                 BlogModel(
-                    title="Python",
-                    content="FastAPI is awesome!",
+                    title="FastAPI",
+                    content="Python",
                     author_id=admin_user.id,
                     created_at="2025-01-06",
                     updated_at="2025-01-06",
                 ),
                 BlogModel(
-                    title="JavaScript",
-                    content="Fetch API is great",
+                    title="Django",
+                    content="Python",
                     author_id=admin_user.id,
                     created_at="2025-01-06",
                     updated_at="2025-01-06",
@@ -234,7 +234,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
